@@ -7,13 +7,16 @@ compatibility_date = "2024-12-01"
 crons = ["*/1 * * * *", "0 * * * *"]
 
 # KV Namespaces - placeholders (set actual IDs later)
+# Naming convention: PROJECT_WORKER_PURPOSE
 [[kv_namespaces]]
 binding = "STATE_KV"
 id = "YOUR_STATE_KV_ID"  # Replace with actual KV ID
+# Create with: wrangler kv:namespace create "STATE_KV" --preview-id "AIG_LOGS_BQ_STATE"
 
 [[kv_namespaces]]
 binding = "IDS_KV"
 id = "YOUR_IDS_KV_ID"  # Replace with actual KV ID
+# Create with: wrangler kv:namespace create "IDS_KV" --preview-id "AIG_LOGS_BQ_DEDUP"
 
 # Environment variables (placeholders - set actual values later)
 [vars]

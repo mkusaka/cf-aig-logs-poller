@@ -39,7 +39,27 @@ Cloudflare AI Gateway
 
 ## Setup
 
-### 1. Clone and Install
+### Quick Start (Automated Setup)
+
+```bash
+git clone https://github.com/yourusername/cf-aig-logs-poller.git
+cd cf-aig-logs-poller
+npm install
+
+# Run the complete setup wizard
+npm run setup
+# Choose option 1 for complete setup (Cloudflare + GCP)
+```
+
+The setup wizard will:
+- Configure Cloudflare KV namespaces with descriptive names
+- Set up BigQuery dataset and tables
+- Create service account with proper permissions
+- Update configuration files automatically
+
+### Manual Setup
+
+#### 1. Clone and Install
 
 ```bash
 git clone https://github.com/yourusername/cf-aig-logs-poller.git
@@ -47,19 +67,23 @@ cd cf-aig-logs-poller
 npm install
 ```
 
-### 2. Create KV Namespaces
+#### 2. Create KV Namespaces
+
+KV namespaces are created with descriptive names for better organization:
 
 ```bash
-# Create STATE_KV namespace for cursor management
+# Create STATE_KV namespace (stores cursor positions)
 wrangler kv:namespace create "STATE_KV"
+# Note the ID, it will look like: { binding = "STATE_KV", id = "abc123..." }
 
-# Create IDS_KV namespace for deduplication
+# Create IDS_KV namespace (stores processed log IDs for deduplication)
 wrangler kv:namespace create "IDS_KV"
+# Note the ID, it will look like: { binding = "IDS_KV", id = "def456..." }
 ```
 
 Update the IDs in `wrangler.toml` with the output from above commands.
 
-### 3. Create BigQuery Table
+#### 3. Create BigQuery Table
 
 Run this SQL in BigQuery to create the destination table:
 
@@ -101,7 +125,12 @@ FROM (
 WHERE rn = 1;
 ```
 
-### 4. Configure Environment Variables
+Or use the automated script:
+```bash
+./scripts/gcp-setup.sh your-project-id
+```
+
+#### 4. Configure Environment Variables
 
 Copy the example file and fill in your values:
 
@@ -114,7 +143,7 @@ Edit `.dev.vars` with your actual values:
 - GCP service account credentials
 - BigQuery project and dataset info
 
-### 5. Set Secrets
+#### 5. Set Secrets
 
 ```bash
 # Set Cloudflare API token
@@ -124,7 +153,7 @@ wrangler secret put CF_API_TOKEN
 wrangler secret put GCP_SA_PRIVATE_KEY_PEM
 ```
 
-### 6. Update Configuration
+#### 6. Update Configuration
 
 Edit `wrangler.toml` to set your environment-specific values:
 - KV namespace IDs
