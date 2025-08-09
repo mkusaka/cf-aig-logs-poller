@@ -20,14 +20,14 @@ export class Logger {
   private formatMessage(level: LogLevel, message: string, data?: any): string {
     const timestamp = new Date().toISOString();
     const prefix = `[${timestamp}] [${level.toUpperCase()}]`;
-    
+
     if (data !== undefined) {
       if (data instanceof Error) {
         return `${prefix} ${message}: ${data.message}\n${data.stack}`;
       }
       return `${prefix} ${message}: ${JSON.stringify(data)}`;
     }
-    
+
     return `${prefix} ${message}`;
   }
 

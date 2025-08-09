@@ -5,11 +5,7 @@ import { getGoogleAccessToken } from './google-auth';
 /**
  * Batch insert logs to BigQuery
  */
-export async function bqInsertAll(
-  env: Env,
-  logs: AIGLog[],
-  logger: Logger
-): Promise<void> {
+export async function bqInsertAll(env: Env, logs: AIGLog[], logger: Logger): Promise<void> {
   if (logs.length === 0) {
     return;
   }
@@ -81,14 +77,11 @@ export async function bqInsertAll(
     // Log any insert errors
     if (result.insertErrors && result.insertErrors.length > 0) {
       logger.warn('BigQuery insert errors detected', result.insertErrors);
-      
+
       // Log error details
       for (const insertError of result.insertErrors) {
         const failedLog = logs[insertError.index];
-        logger.error(
-          `Failed to insert log ${failedLog?.id}`,
-          insertError.errors
-        );
+        logger.error(`Failed to insert log ${failedLog?.id}`, insertError.errors);
       }
 
       // Continue even with partial failures (adjust as needed)
@@ -96,7 +89,9 @@ export async function bqInsertAll(
       const successCount = logs.length - errorCount;
       logger.info(`BigQuery insert: ${successCount} success, ${errorCount} failed`);
     } else {
-      logger.info(`Successfully inserted ${logs.length} logs to BigQuery in ${Date.now() - startTime}ms`);
+      logger.info(
+        `Successfully inserted ${logs.length} logs to BigQuery in ${Date.now() - startTime}ms`
+      );
     }
   } catch (error) {
     logger.error('BigQuery insertAll failed', error);
@@ -107,15 +102,9 @@ export async function bqInsertAll(
 /**
  * Check if BigQuery table exists (optional)
  */
-export async function checkBigQueryTable(
-  env: Env,
-  logger: Logger
-): Promise<boolean> {
+export async function checkBigQueryTable(env: Env, logger: Logger): Promise<boolean> {
   try {
-    const accessToken = await getGoogleAccessToken(
-      env,
-      'https://www.googleapis.com/auth/bigquery'
-    );
+    const accessToken = await getGoogleAccessToken(env, 'https://www.googleapis.com/auth/bigquery');
 
     const url = `https://bigquery.googleapis.com/bigquery/v2/projects/${env.GCP_BQ_PROJECT}/datasets/${env.GCP_BQ_DATASET}/tables/${env.GCP_BQ_TABLE}`;
 

@@ -3,15 +3,19 @@
   "version": "1.0.0",
   "description": "Cloudflare AI Gateway Logs to BigQuery Streamer",
   "main": "src/index.ts",
+  "packageManager": "pnpm@9.15.0",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "format": "prettier --write .",
-    "lint": "eslint src --ext .ts",
+    "format:check": "prettier --check .",
+    "lint": "oxlint src",
+    "lint:fix": "oxlint src --fix",
     "type-check": "tsc --noEmit",
     "setup": "./scripts/setup.sh",
     "test-connection": "./scripts/test-connection.sh",
-    "tail": "wrangler tail"
+    "tail": "wrangler tail",
+    "ci": "pnpm run type-check && pnpm run lint && pnpm run format:check"
   },
   "keywords": [
     "cloudflare",
@@ -24,9 +28,7 @@
   "license": "MIT",
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241127.0",
-    "@typescript-eslint/eslint-plugin": "^6.13.1",
-    "@typescript-eslint/parser": "^6.13.1",
-    "eslint": "^8.55.0",
+    "oxlint": "^0.15.15",
     "prettier": "^3.1.0",
     "typescript": "^5.3.2",
     "wrangler": "^3.22.1"

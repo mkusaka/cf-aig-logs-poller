@@ -4,12 +4,9 @@ import { Env } from './types';
  * Get Google access token using Service Account
  * Uses JWT Bearer Token authentication flow
  */
-export async function getGoogleAccessToken(
-  env: Env,
-  scope: string
-): Promise<string> {
+export async function getGoogleAccessToken(env: Env, scope: string): Promise<string> {
   const jwt = await createJWT(env, scope);
-  
+
   const response = await fetch(env.GCP_TOKEN_URI, {
     method: 'POST',
     headers: {
@@ -35,7 +32,7 @@ export async function getGoogleAccessToken(
  */
 async function createJWT(env: Env, scope: string): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
-  
+
   const header = {
     alg: 'RS256',
     typ: 'JWT',
@@ -51,13 +48,8 @@ async function createJWT(env: Env, scope: string): Promise<string> {
 
   // Base64URL encode function
   const base64url = (data: string | Uint8Array): string => {
-    const base64 = typeof data === 'string' 
-      ? btoa(data)
-      : btoa(String.fromCharCode(...data));
-    return base64
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '');
+    const base64 = typeof data === 'string' ? btoa(data) : btoa(String.fromCharCode(...data));
+    return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
   };
 
   // Encode header and payload
@@ -75,10 +67,7 @@ async function createJWT(env: Env, scope: string): Promise<string> {
 /**
  * Create RS256 signature
  */
-async function signRS256(
-  privateKeyPem: string,
-  data: string
-): Promise<Uint8Array> {
+async function signRS256(privateKeyPem: string, data: string): Promise<Uint8Array> {
   // Extract actual key data from PEM format
   const keyData = privateKeyPem
     .replace(/-----BEGIN PRIVATE KEY-----/g, '')
@@ -117,17 +106,11 @@ async function signRS256(
  * Simple implementation to cache access tokens (optional)
  * Uses KV store to cache tokens for a certain period
  */
-export async function getCachedAccessToken(
-  env: Env,
-  scope: string
-): Promise<string> {
+export async function getCachedAccessToken(env: Env, scope: string): Promise<string> {
   const cacheKey = `google_token:${scope}`;
-  
+
   // Try to get from cache
-  const cached = await env.STATE_KV.get<{ token: string; expires: number }>(
-    cacheKey,
-    'json'
-  );
+  const cached = await env.STATE_KV.get<{ token: string; expires: number }>(cacheKey, 'json');
 
   if (cached && cached.expires > Date.now()) {
     return cached.token;
@@ -135,7 +118,7 @@ export async function getCachedAccessToken(
 
   // Get new token
   const token = await getGoogleAccessToken(env, scope);
-  
+
   // Save to cache (valid for 55 minutes)
   await env.STATE_KV.put(
     cacheKey,

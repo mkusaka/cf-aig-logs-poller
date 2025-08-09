@@ -5,11 +5,7 @@ import { Logger } from './logger';
  * Deduplicate logs and filter out already processed ones
  * Uses both in-memory Set and KV store for deduplication
  */
-export async function dedupAndFilter(
-  env: Env,
-  logs: AIGLog[],
-  logger: Logger
-): Promise<AIGLog[]> {
+export async function dedupAndFilter(env: Env, logs: AIGLog[], logger: Logger): Promise<AIGLog[]> {
   const startTime = Date.now();
   const seen = new Set<string>();
   const output: AIGLog[] = [];
@@ -37,7 +33,7 @@ export async function dedupAndFilter(
     // Check if already processed (in KV store)
     const kvKey = `id:${log.id}`;
     const existing = await env.IDS_KV.get(kvKey);
-    
+
     if (existing) {
       logger.debug(`Already processed: ${log.id}`);
       continue;
@@ -50,7 +46,7 @@ export async function dedupAndFilter(
   // Mark these logs as processed in KV store
   if (output.length > 0) {
     logger.debug(`Marking ${output.length} logs as processed`);
-    
+
     // Batch KV operations for better performance
     const kvPromises = output.map(log => {
       const kvKey = `id:${log.id}`;
@@ -76,15 +72,12 @@ export async function dedupAndFilter(
 /**
  * Clear deduplication cache (for maintenance/debugging)
  */
-export async function clearDedupCache(
-  env: Env,
-  logger: Logger
-): Promise<void> {
+export async function clearDedupCache(env: Env, logger: Logger): Promise<void> {
   logger.warn('Clearing deduplication cache - this may cause duplicates');
-  
+
   // KV doesn't have a clear all method, so we need to list and delete
   // This is a maintenance operation that should be used carefully
-  
+
   let cursor: string | undefined;
   let deleted = 0;
 
@@ -95,14 +88,15 @@ export async function clearDedupCache(
       cursor,
     });
 
-    const deletePromises = listResult.keys.map(key =>
-      env.IDS_KV.delete(key.name)
-    );
+    const deletePromises = listResult.keys.map(key => env.IDS_KV.delete(key.name));
 
     await Promise.all(deletePromises);
     deleted += listResult.keys.length;
 
-    cursor = listResult.cursor;
+    cursor =
+      'list_complete' in listResult && listResult.list_complete
+        ? undefined
+        : (listResult as any).cursor;
   } while (cursor);
 
   logger.info(`Cleared ${deleted} entries from deduplication cache`);
@@ -139,7 +133,10 @@ export async function getDedupStats(
       }
     }
 
-    cursor = listResult.cursor;
+    cursor =
+      'list_complete' in listResult && listResult.list_complete
+        ? undefined
+        : (listResult as any).cursor;
   } while (cursor);
 
   logger.info(`Dedup cache stats: ${totalEntries} entries`);

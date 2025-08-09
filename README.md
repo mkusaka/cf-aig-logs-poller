@@ -35,7 +35,8 @@ Cloudflare AI Gateway
 2. **Google Cloud Project** with BigQuery API enabled
 3. **Service Account** with BigQuery Data Editor role
 4. **Cloudflare API Token** with AI Gateway read permissions
-5. **Wrangler CLI** installed (`npm install -g wrangler`)
+5. **pnpm** package manager (`npm install -g pnpm`)
+6. **Wrangler CLI** installed (`pnpm install -g wrangler`)
 
 ## Setup
 
@@ -44,10 +45,10 @@ Cloudflare AI Gateway
 ```bash
 git clone https://github.com/yourusername/cf-aig-logs-poller.git
 cd cf-aig-logs-poller
-npm install
+pnpm install
 
 # Run the complete setup wizard
-npm run setup
+pnpm run setup
 # Choose option 1 for complete setup (Cloudflare + GCP)
 ```
 
@@ -64,7 +65,7 @@ The setup wizard will:
 ```bash
 git clone https://github.com/yourusername/cf-aig-logs-poller.git
 cd cf-aig-logs-poller
-npm install
+pnpm install
 ```
 
 #### 2. Create KV Namespaces
@@ -167,14 +168,14 @@ Edit `wrangler.toml` to set your environment-specific values:
 
 ```bash
 # Run locally (for testing)
-npm run dev
+pnpm run dev
 ```
 
 ### Production
 
 ```bash
 # Deploy to Cloudflare Workers
-npm run deploy
+pnpm run deploy
 ```
 
 ## Monitoring
@@ -293,13 +294,13 @@ cf-aig-logs-poller/
 
 ```bash
 # Type checking
-npm run type-check
+pnpm run type-check
 
 # Linting
-npm run lint
+pnpm run lint
 
 # Format code
-npm run format
+pnpm run format
 ```
 
 ## License

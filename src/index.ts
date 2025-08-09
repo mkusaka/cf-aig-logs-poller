@@ -1,15 +1,11 @@
-import { Env, CursorState, AIGLog } from './types';
+import { Env, CursorState } from './types';
 import { fetchLogs } from './ai-gateway';
 import { dedupAndFilter } from './dedup';
 import { bqInsertAll } from './bigquery';
 import { Logger } from './logger';
 
 export default {
-  async scheduled(
-    controller: ScheduledController,
-    env: Env,
-    ctx: ExecutionContext
-  ): Promise<void> {
+  async scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
     const logger = new Logger(env.LOG_LEVEL || 'info');
 
     try {
@@ -38,7 +34,7 @@ async function runForward(env: Env, logger: Logger): Promise<void> {
   try {
     // Default to fetching from 10 minutes ago
     const nowMinus10m = new Date(Date.now() - 10 * 60 * 1000).toISOString();
-    
+
     // Get previous cursor position
     const cursor = await env.STATE_KV.get<CursorState>('forward', 'json');
     let lastTs = cursor?.ts ?? nowMinus10m;
@@ -47,21 +43,29 @@ async function runForward(env: Env, logger: Logger): Promise<void> {
     logger.debug(`Forward cursor: ts=${lastTs}, id=${lastId}`);
 
     // Phase 1: Fetch remaining logs with same timestamp (ID > lastId)
-    const phase1 = await fetchLogs(env, {
-      op: 'eq',
-      ts: lastTs,
-      idCmp: { kind: 'gt', id: lastId },
-      asc: true,
-      maxPages: 5,
-    }, logger);
+    const phase1 = await fetchLogs(
+      env,
+      {
+        op: 'eq',
+        ts: lastTs,
+        idCmp: { kind: 'gt', id: lastId },
+        asc: true,
+        maxPages: 5,
+      },
+      logger
+    );
 
     // Phase 2: Fetch logs with newer timestamps
-    const phase2 = await fetchLogs(env, {
-      op: 'gt',
-      ts: lastTs,
-      asc: true,
-      maxPages: parseInt(env.FORWARD_MAX_PAGES || '20'),
-    }, logger);
+    const phase2 = await fetchLogs(
+      env,
+      {
+        op: 'gt',
+        ts: lastTs,
+        asc: true,
+        maxPages: parseInt(env.FORWARD_MAX_PAGES || '20'),
+      },
+      logger
+    );
 
     // Combine all logs and deduplicate
     const allLogs = [...phase1, ...phase2];
@@ -75,10 +79,7 @@ async function runForward(env: Env, logger: Logger): Promise<void> {
 
       // Update cursor (save position of last log)
       const lastLog = toSend[toSend.length - 1];
-      await env.STATE_KV.put(
-        'forward',
-        JSON.stringify({ ts: lastLog.created_at, id: lastLog.id })
-      );
+      await env.STATE_KV.put('forward', JSON.stringify({ ts: lastLog.created_at, id: lastLog.id }));
 
       // Record oldest timestamp on first run
       const oldestKey = 'oldest';
@@ -116,12 +117,16 @@ async function runBackfill(env: Env, logger: Logger): Promise<void> {
     logger.debug(`Backfill from ${oldest}, stop at ${stopAt}`);
 
     // Fetch historical logs
-    const batch = await fetchLogs(env, {
-      op: 'lt',
-      ts: oldest,
-      asc: false,
-      maxPages: parseInt(env.BACKFILL_MAX_PAGES || '40'),
-    }, logger);
+    const batch = await fetchLogs(
+      env,
+      {
+        op: 'lt',
+        ts: oldest,
+        asc: false,
+        maxPages: parseInt(env.BACKFILL_MAX_PAGES || '40'),
+      },
+      logger
+    );
 
     if (batch.length === 0) {
       logger.info('No more logs to backfill');
@@ -131,8 +136,8 @@ async function runBackfill(env: Env, logger: Logger): Promise<void> {
     }
 
     // Sort chronologically
-    const sortedLogs = [...batch].sort((a, b) =>
-      a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id)
+    const sortedLogs = [...batch].sort(
+      (a, b) => a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id)
     );
 
     // Deduplicate

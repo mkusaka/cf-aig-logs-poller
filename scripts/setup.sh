@@ -28,13 +28,20 @@ if ! command -v node &> /dev/null; then
 fi
 echo -e "${GREEN}✅ Node.js found: $(node --version)${NC}"
 
-# Check if npm dependencies are installed
+# Check if pnpm is installed
+if ! command -v pnpm &> /dev/null; then
+    echo -e "${RED}❌ pnpm not found. Installing...${NC}"
+    npm install -g pnpm
+fi
+echo -e "${GREEN}✅ pnpm found: $(pnpm --version)${NC}"
+
+# Check if dependencies are installed
 if [ ! -d "node_modules" ]; then
     echo ""
-    echo "📦 Installing npm dependencies..."
-    npm install
+    echo "📦 Installing dependencies with pnpm..."
+    pnpm install
 else
-    echo -e "${GREEN}✅ npm dependencies already installed${NC}"
+    echo -e "${GREEN}✅ Dependencies already installed${NC}"
 fi
 
 # Create .dev.vars if it doesn't exist
@@ -86,7 +93,7 @@ case $choice in
         echo "   wrangler secret put GCP_SA_PRIVATE_KEY_PEM"
         echo ""
         echo "2. Deploy:"
-        echo "   npm run deploy"
+        echo "   pnpm run deploy"
         echo ""
         echo "3. Monitor:"
         echo "   wrangler tail"

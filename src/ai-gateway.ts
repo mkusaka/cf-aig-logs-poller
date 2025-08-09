@@ -68,7 +68,7 @@ export async function fetchLogs(
       }
 
       const logs = json.result || [];
-      
+
       if (logs.length === 0) {
         logger.debug(`No logs found on page ${page}`);
         break;

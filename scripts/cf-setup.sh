@@ -16,10 +16,16 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Check if pnpm is installed
+if ! command -v pnpm &> /dev/null; then
+    echo -e "${RED}❌ pnpm not found. Installing...${NC}"
+    npm install -g pnpm
+fi
+
 # Check if wrangler is installed
 if ! command -v wrangler &> /dev/null; then
     echo -e "${RED}❌ Wrangler CLI not found. Installing...${NC}"
-    npm install -g wrangler
+    pnpm install -g wrangler
 fi
 
 echo -e "${GREEN}✅ Wrangler CLI found${NC}"
@@ -185,7 +191,7 @@ echo "3. Set your GCP service account key:"
 echo -e "   ${GREEN}wrangler secret put GCP_SA_PRIVATE_KEY_PEM${NC}"
 echo ""
 echo "4. Deploy the worker:"
-echo -e "   ${GREEN}npm run deploy${NC}"
+echo -e "   ${GREEN}pnpm run deploy${NC}"
 echo ""
 echo "5. Monitor logs:"
 echo -e "   ${GREEN}wrangler tail${NC}"
