@@ -1,0 +1,44 @@
+name = "cf-aig-logs-to-bq"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+[triggers]
+# Run every minute (forward) and every hour (backfill)
+crons = ["*/1 * * * *", "0 * * * *"]
+
+# KV Namespaces - placeholders (set actual IDs later)
+[[kv_namespaces]]
+binding = "STATE_KV"
+id = "YOUR_STATE_KV_ID"  # Replace with actual KV ID
+
+[[kv_namespaces]]
+binding = "IDS_KV"
+id = "YOUR_IDS_KV_ID"  # Replace with actual KV ID
+
+# Environment variables (placeholders - set actual values later)
+[vars]
+# Cloudflare settings
+CF_ACCOUNT_ID = "YOUR_CF_ACCOUNT_ID"
+AIG_GATEWAY_ID = "YOUR_AIG_GATEWAY_ID"
+
+# GCP settings
+GCP_TOKEN_URI = "https://oauth2.googleapis.com/token"
+GCP_SA_EMAIL = "YOUR_SERVICE_ACCOUNT@YOUR_PROJECT.iam.gserviceaccount.com"
+GCP_BQ_PROJECT = "YOUR_GCP_PROJECT"
+GCP_BQ_DATASET = "YOUR_DATASET"
+GCP_BQ_TABLE = "aig_logs_raw"
+
+# Deduplication settings
+DEDUP_TTL_DAYS = "45"
+
+# Log level
+LOG_LEVEL = "info"
+
+# Batch sizes
+FORWARD_MAX_PAGES = "20"
+BACKFILL_MAX_PAGES = "40"
+LOGS_PER_PAGE = "50"
+
+# Secrets (set sensitive data with wrangler secret command)
+# wrangler secret put CF_API_TOKEN
+# wrangler secret put GCP_SA_PRIVATE_KEY_PEM

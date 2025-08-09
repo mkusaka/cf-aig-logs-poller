@@ -1,0 +1,11 @@
+# Cloudflare AI Gateway
+CF_API_TOKEN=your_cloudflare_api_token_here
+CF_ACCOUNT_ID=your_cloudflare_account_id_here
+AIG_GATEWAY_ID=your_ai_gateway_id_here
+
+# Google Cloud Platform
+GCP_SA_EMAIL=your-service-account@your-project.iam.gserviceaccount.com
+GCP_SA_PRIVATE_KEY_PEM="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----"
+GCP_BQ_PROJECT=your-gcp-project-id
+GCP_BQ_DATASET=your_dataset_name
+GCP_BQ_TABLE=aig_logs_raw
